@@ -9,12 +9,12 @@ The more honest it is, the better the council fits recommendations to *you*.
 - Target founder time at steady state: _e.g. under 5–10 hours/week_
 
 ## Constraints
-- Starting budget: _e.g. under $10k_
+- Starting budget: **ideally a few hundred dollars to start (bootstrapped, mostly sweat equity); up to $10k–$50k if the idea clearly justifies it**
 - Hours/week available during the build phase: _e.g. 15–20_
-- Location / markets I can serve: _e.g. US, UK, Canada, Australia, India, or online-global_
+- Location / markets I can serve: **online, global. Must be able to scale to millions of users without scaling effort**
 - Languages: _e.g. English, Hindi, Punjabi_
-- Open to physical products or inventory? _yes / no / only low-inventory_
-- Open to local, in-person services? _yes / no / only if fully delegated_
+- Open to physical products or inventory? **No.** Strong preference for **digital / online / software**. A physical component is acceptable only if it is fully automated and plug-and-play (e.g. print-on-demand, API-driven fulfillment) with zero inventory handling
+- Open to local, in-person services? **No**
 - Risk appetite: _low / medium / high_
 
 ## Unfair advantages
