@@ -1,6 +1,6 @@
 # 05 — Ops & Automation Engineer (Priya) — run 2026-09-25-digital-software
 
-**Scope:** the two finalists kept by `03-customer-psychologist.md`: **A. Compliance-grade document render API** (Germany-first) and **B. Shopify accessibility regression guard**. `04-offer-architect.md` did not exist when this was written, so pricing follows the ranges in 03: **A: $19 / $49–99 / $249+ per month; B: $29 / $79 / $149–199, agency $299+**. Re-check the unit economics below once 04 lands.
+**Scope:** the two finalists kept by `03-customer-psychologist.md`: **A. Compliance-grade document render API** (Germany-first) and **B. Shopify accessibility regression guard**. I drafted this against the pricing ranges in 03 (A: $19 / $49–99 / $249+; B: $29 / $79 / $149–199). `04-offer-architect.md` then landed with A at €0/€29/€99/€299 (ARPU ~€75) and B at $39/$99/$199/$349 agency (ARPU ~$90). Both are at or above the 03 ranges, so the conclusions hold. The section **"Alignment with 04"** near the end lists where ops disagrees with 04 or adds constraints.
 
 **Founder assumption:** a solo technical founder who can code in Python/TypeScript, working 15–20 h/week during the build. For a founder who can't code, I give the cost of hiring the work out.
 
@@ -12,10 +12,10 @@
 |---|---|---|
 | **Passivity Score** | **7 / 10** | **4 / 10** (5 if Shopify grants a write_themes exemption and support is productized) |
 | Build to launch | ~250–330 h, ~$300–1.5k | ~300–380 h, ~$300–2k |
-| Build to "systemized" | ~450–550 h total, ~$2–4k total | ~500–650 h total, ~$3–5k total |
+| Build to "systemized" | ~400–530 h total, ~$1.5–4k total | ~470–620 h total, ~$1.5–5k total |
 | Cost to hire it out (non-coder) | ~$35–55k, plus a ~$1–2k/mo standards retainer | ~$35–65k, plus a ~$1.5–3k/mo dev and support retainer |
 | Monthly running cost (100 customers) | ~$90–150, plus payment fees | ~$140–200, plus the 2.9% Shopify billing fee |
-| Monthly running cost (500 customers) | ~$350–500 + ~$0.8–1.5k support contractor | ~$500–700 + ~$2.5–5k support contractor(s) |
+| Monthly running cost (500 customers) | ~$350–500 + ~$1–1.5k support contractor | ~$500–700 + ~$2–3.5k support contractor(s) |
 | Founder hrs/week (100 customers) | **4–6** | **7–10** |
 | Founder hrs/week (500 customers) | **5–8** (with a contractor) | **8–12** (with 1–2 contractors) |
 | Top risk | A silently wrong "valid" report on an invoice the customer's AP rejects. This is a trust and liability event on a billing-critical path. | Shopify gatekeeping (theme-write exemption, app review, API changes) plus non-technical merchants who turn "tool" into "do it for me" service work. |
@@ -33,25 +33,26 @@ This is the most automatable business in the run. The buyer is a developer who r
 | Step | Tag | Tool / role | Notes |
 |---|---|---|---|
 | Acquire: SEO/docs | Automate + founder (initially) | Static docs site (Docusaurus/Starlight on free static hosting) with programmatic pages ("ZUGFeRD API Node", "XRechnung from Stripe invoice") | Write ~30 pages once, then generate the rest from templates. AI drafts, founder reviews. |
+| Acquire: free public validator (04's entry offer) | Automate | Same validation sidecar exposed as an upload page, rate-limited | Lead magnet. Cap uploads per IP and store nothing. |
 | Acquire: dev channels | Founder-only (build phase), then eliminate | dev.to posts, GitHub examples, a public "validator comparison" repo | Front-loaded. Taper to ~1 post/month. |
-| Acquire: partners (app builders, Persona B) | Founder-only | Email and calls | The only sales-like activity. Keep it to ≤1 h/week and serve partners through the same self-serve API plus a volume plan. |
-| Sell | Automate | Pricing page + self-serve checkout (Paddle MoR, or Stripe Billing) + free tier (50 docs/mo) | No sales calls under $499/mo. Above that, a Cal.com link, founder only. |
+| Acquire: partners (app builders, Persona B) | Founder-only | Email and calls | The only sales-like activity. Keep it to ≤1 h/week and serve partners through the same self-serve API plus the Scale tier. |
+| Sell | Automate | Pricing page + self-serve checkout (Paddle MoR, or Stripe Billing) + Sandbox tier | No sales calls below Scale. Scale gets a Cal.com link, founder only. |
 | Onboard | Automate | API key on signup, quick-start in 3 languages, a Postman/OpenAPI collection, SDKs generated from OpenAPI, an onboarding email sequence (Postmark) | Measure "first valid document within 24 h". Nudge automatically if it doesn't happen. |
 | Deliver: render | Automate | WeasyPrint (BSD) in a Python worker pool on Hetzner, queue (Redis/Postgres), sync endpoint for ≤5 pages, async + webhook for batches | Month-start batch runs go through the async queue. |
 | Deliver: XML generation | Automate | Own JSON→CII (EN 16931 / XRechnung CIUS) mapper; Mustang (Apache-2.0) as reference and cross-check | Mapping the ~160 business terms is the core IP. |
 | Deliver: validation | Automate | veraPDF (MPL-2.0/GPLv3 dual) for PDF/A-3b and PDF/UA-1; KoSIT validator + XRechnung config (schematron); Mustang validator | Java sidecar service, versions pinned per release. |
-| Deliver: validation report | Automate | JSON + human-readable PDF/HTML report per document; error codes mapped to plain-language fixes | The main support-deflection lever. |
-| Deliver: archive (add-on) | Automate | Hetzner Object Storage with object lock / immutable bucket, retention per plan | Opt-in only. Default is zero-retention. |
-| Support: tier 1 | Automate → delegate | Docs AI bot (Crisp Hugo, or an LLM over the docs), "explain this error" endpoint; part-time technical support contractor from ~200 customers | SOP: reproduce with the customer's payload in a sandbox, map to the docs, escalate if it's a validator disagreement. |
+| Deliver: validation report | Automate | JSON + human-readable PDF/HTML report per document; error codes mapped to plain-language fixes | The main support-deflection lever. It also drives 04's rule that failed documents aren't billed. |
+| Deliver: archive | Automate | Hetzner Object Storage with object lock / immutable bucket, replicated to a second provider, retention per plan | Default is zero-retention outside the archive. |
+| Support: tier 1 | Automate → delegate | Docs AI bot (Crisp Hugo, or an LLM over the docs), "explain this error" endpoint; part-time technical support contractor from ~150–200 customers | SOP: reproduce with the customer's payload in a sandbox, map to the docs, escalate if it's a validator disagreement. |
 | Support: tier 2 (standards) | Founder-only | You | Validator disagreements, profile questions and new mandates. Can't be delegated cheaply. |
 | Standards maintenance | Founder-only (+ automate detection) | GitHub release watch on KoSIT, veraPDF, Mustang and WeasyPrint; Renovate bot; nightly golden-file suite against pinned **and** latest validators | Detection is automated. The judgement isn't. |
 | Retain | Automate | Monthly "standards absorbed" changelog email, usage-drop alerts (Postmark + a cron job), annual plan offer at month 3 | Churn signal: doc volume down >50% month on month triggers an automatic check-in email. |
-| Bill / dunning | Automate | Paddle (handles VAT and dunning), or Stripe Billing + Smart Retries | Metered overages via usage records. |
+| Bill / dunning | Automate | Paddle (handles VAT and dunning), or Stripe Billing + Smart Retries | Metered overages via usage records. Billing reads report status, so failed docs are excluded automatically. |
 | Ops / on-call | Automate + founder | Better Stack uptime + status page (free tier), Sentry, queue-depth alerts; extra worker capacity scheduled for the 1st–3rd of each month | Founder is on call. Keep a runbook so a contractor can restart and scale. |
-| Legal / compliance | Founder-only (one-off) + eliminate | DPA template, ToS ("validated against X; tax treatment is the customer's responsibility"), EU hosting | One-off lawyer review. Never claim "legally compliant". |
+| Legal / compliance | Founder-only (one-off) + eliminate | DPA template, ToS ("validated against X version Y; tax treatment is the customer's responsibility"; archive exit clause), EU hosting | One-off lawyer review. Never claim "legally compliant". |
 | Finance / bookkeeping | Delegate | Accountant or bookkeeping tool | ~1 h/month. |
 
-**Eliminated scope:** Peppol/PA transmission (send enterprise leads to Billit/Pagero), remediation of existing PDFs, tax-treatment advice, custom template design services (offer a template gallery instead), and on-prem installs until there is a paid self-host tier with no support SLA.
+**Eliminated scope:** Peppol/PA transmission (send enterprise leads to Billit/Pagero), remediation of existing PDFs, tax-treatment advice, custom template design services (offer a template gallery instead), and self-host install support below a paid SLA.
 
 ### A3. Recommended stack and monthly cost
 
@@ -61,8 +62,8 @@ This is the most automatable business in the run. The buyer is a developer who r
 |---|---|---|---|---|---|
 | Chromium (Puppeteer/Playwright) | No (needs heavy post-processing; output isn't PDF/A-conformant) | Partial tagging, not PDF/UA-conformant | Best | Cheap | **Don't use** as the final writer. Possible later for "visual preview" only. |
 | **WeasyPrint (BSD-3)** | **Yes**: `pdf/a-3b` variant; built-in Factur-X/ZUGFeRD attachment API since v64 | **Yes, with gaps**: `pdf/ua-1` variant, but open issues on table header associations, colspan/rowspan and form widgets (veraPDF failures reported in 2026) | Good for invoice-style documents; no JS; slow on long tables (~0.6 s for a 50-row invoice in a 2026 benchmark) | ~$0 licence; CPU-bound | **Use as the primary engine.** Constrain templates: no JS, block layout where possible, a tested template gallery. Contribute or patch the PDF/UA table fixes. |
-| Prince (via own licence) | Yes | Yes (mature) | Very good paged-media CSS | **$3,800 one-time per server + annual maintenance**, or a site licence from **~$2,000/yr for startups** (per princexml.com via snippet). SaaS/API resale may need an OEM agreement **[unverified]** | **Phase-3 upgrade path** for a "premium fidelity" tier once MRR is above ~$5k. Not for launch. |
-| DocRaptor (Prince as a service) | Yes | Yes | Very good | $15/125 docs, $75/1,250 docs, down to ~$0.025/doc at ~$1,000/mo | **Can't be resold** at $49–99 for 2k–10k docs: the wholesale cost would exceed the price. Useful only as a benchmark. |
+| Prince (via own licence) | Yes | Yes (mature) | Very good paged-media CSS | **$3,800 one-time per server + annual maintenance**, or a site licence from **~$2,000/yr for startups** (per princexml.com via snippet). SaaS/API resale may need an OEM agreement **[unverified]** | **Phase-3 upgrade path** for fidelity, or a fallback if WeasyPrint's PDF/UA can't be fixed. Fits inside 04's €400/mo licence reserve. |
+| DocRaptor (Prince as a service) | Yes | Yes | Very good | $15/125 docs, $75/1,250 docs, down to ~$0.025/doc at ~$1,000/mo | **Can't be resold** at €29–99 for 2k+ docs: the wholesale cost would exceed the price. Useful only as a benchmark. |
 | iText / PDFlib | Yes | Yes | Not an HTML renderer (iText pdfHTML is an add-on) | Commercial licence, AGPL otherwise **[pricing unverified]** | Skip. AGPL/licence cost and a JVM-heavy stack. |
 
 **Validation layer:** veraPDF (dual GPLv3+/MPLv2+; use it under MPL as an unmodified separate service, which is fine for SaaS) + KoSIT validator with the XRechnung configuration (latest release 2026-08-31) + Mustang (Apache-2.0) for ZUGFeRD profile checks. All Java, so run them as one long-lived JVM service to avoid ~1 s JVM start-up per document.
@@ -73,7 +74,7 @@ This is the most automatable business in the run. The buyer is a developer who r
 |---|---|---|---|---|
 | API + render workers | Hetzner Cloud CX33 (€8.49) / CX43 (€15.99) | 2× CX33 + 1× CX43 (validators) ≈ €33 | 3× CX43 always on + 2–3 burst CX43 for ~3 days/month ≈ €55–70 | Verified (post-June 2026 prices, ex-VAT, ex-IPv4) |
 | Database | Postgres self-hosted on a CX33 plus Hetzner backups, or a managed Postgres | ~€10–15 | ~€25–40 | Hetzner backup = 20% of server price **[unverified post-June]** |
-| Object storage (reports, optional archive) | Hetzner Object Storage | €6.49 (1 TB incl.) | €6.49–20 | Verified (Apr 2026 price) |
+| Object storage (reports, archive) + replica | Hetzner Object Storage (+ a second provider for the archive replica) | €6.49 (1 TB incl.) + ~€5 | €6.49–20 + ~€10 | Hetzner verified (Apr 2026 price); replica provider **[unverified]** |
 | Load balancer | Hetzner LB | ~€6 | ~€6–12 | **[unverified post-June price]** |
 | Transactional email | Postmark Basic | $15 (10k emails) | $15–30 | Verified |
 | Support chat + KB + AI bot | Crisp Free → Mini €45 → Essentials €95 | €0–45 | €95 | Verified |
@@ -85,7 +86,7 @@ This is the most automatable business in the run. The buyer is a developer who r
 | LLM (docs bot / "explain this error") | Claude Haiku 4.5 ($1/$5 per M tokens) | <$10 | $20–50 | Verified |
 | **Total fixed (ex-payment fees)** | | **~$90–150/mo** (drops to ~$60 before insurance and Crisp) | **~$350–500/mo** | |
 
-**Cost per customer:** infra ~$0.50–1/month at scale, payment fees ~6–7% of ARPU, and support ~$2–3/customer/month once a contractor is hired. At an assumed ARPU of $70, gross margin is ~85–88%.
+**Cost per customer:** infra ~$0.50–1/month at scale, payment fees ~6–7% of ARPU, and support ~$2–3/customer/month once a contractor is hired. At 04's blended ARPU of ~€75, gross margin is ~85–88%, consistent with 04's ~90%.
 
 **Dogfooding bonus:** render your own customer invoices through your API. If you sell through Paddle, Paddle is the merchant of record, but a "we eat our own cooking" invoice is still a marketing asset.
 
@@ -93,10 +94,10 @@ This is the most automatable business in the run. The buyer is a developer who r
 
 | Phase | Weeks | Founder hours | Cash | Deliverables / exit criteria |
 |---|---|---|---|---|
-| **0. Spike + demand check** | 1–3 | 30–40 | ~$50 (domain, one CX33) | WeasyPrint + own CII XML produce a file that passes **veraPDF (PDF/A-3b), Mustang and KoSIT** for the EN16931 and XRECHNUNG profiles on 20 sample invoices. PDF/UA-1 passes on the invoice templates. Landing page + waitlist. 8 switch interviews (script in 03). **Kill criterion:** can't reach clean veraPDF + KoSIT passes in 40 h, or fewer than 30 waitlist sign-ups in 4 weeks. |
-| **1. MVP** | 4–12 | 150–200 | ~$100–200 | FastAPI service: API keys, JSON and HTML input, sync + async (queue + webhooks), JSON→CII mapper (EN 16931 core BTs), Java validation sidecar, report (JSON + HTML), usage metering, minimal dashboard (keys, usage, recent docs), Paddle/Stripe checkout + free tier, quick-start docs, OpenAPI spec. 3 invoice templates. |
-| **2. Launch** | 13–17 | 60–90 | ~$500–1,500 (lawyer review of ToS/DPA ~€500–1,500 **[estimate]**) | Docs site with ~30 SEO pages, Stripe-invoice→ZUGFeRD recipe, public validator-comparison repo, Node + Python SDKs (generated), status page, DPA, zero-retention default, dev.to/HN launch, first 10 paying customers. |
-| **3. Systemize** | 18–40 | 120–160 | ~$500–1,000 (insurance start, burst infra) | Golden-file CI suite (~200 invoices × every profile, nightly against pinned and latest validators); error-code→plain-language fix library; AI docs bot; month-start autoscaling; backups + restore drill; runbooks; archive add-on; Stripe webhook connector (listens to `invoice.finalized` and renders automatically); PDF/UA hardening (table tags); usage-drop and dunning automations; KPI dashboard. |
+| **0. Spike + demand check** | 1–3 | 30–40 | ~$50 (domain, one CX33) | WeasyPrint + own CII XML produce a file that passes **veraPDF (PDF/A-3b), Mustang and KoSIT** for the EN16931 and XRECHNUNG profiles on 20 sample invoices. PDF/UA-1 passes on invoice templates **with tables**. Free public validator + landing page + waitlist (this is also 04's fake-door test). 8 switch interviews (script in 03). **Kill criterion:** can't reach clean veraPDF + KoSIT passes in 40 h, or fewer than 30 waitlist sign-ups in 4 weeks. |
+| **1. MVP** | 4–12 | 150–200 | ~$100–200 | FastAPI service: API keys, JSON and HTML input, sync + async (queue + webhooks), JSON→CII mapper (EN 16931 core BTs), Java validation sidecar, report (JSON + HTML), usage metering (failed docs excluded), minimal dashboard (keys, usage, recent docs), Paddle/Stripe checkout + Sandbox tier, quick-start docs, OpenAPI spec. 3 invoice templates. |
+| **2. Launch** | 13–17 | 60–90 | ~$500–1,500 (lawyer review of ToS/DPA/archive clause ~€500–1,500 **[estimate]**) | Docs site with ~30 SEO pages, Stripe-invoice→ZUGFeRD recipe, public validator-comparison repo, Node + Python SDKs (generated), status page, DPA, zero-retention default, dev.to/HN launch, first 10 paying customers. |
+| **3. Systemize** | 18–40 | 120–160 | ~$500–1,000 (insurance start, burst infra) | Golden-file CI suite (~200 invoices × every profile, nightly against pinned and latest validators); error-code→plain-language fix library; AI docs bot; month-start autoscaling; backups + restore drill; runbooks; immutable archive with replica + export API; Stripe webhook connector (listens to `invoice.finalized` and renders automatically); template-compatibility pre-flight check; PDF/UA hardening (table tags); usage-drop and dunning automations; KPI dashboard. |
 | **4. Delegate** | 40–52 | 30–40 | ~$800–1,500/mo from ~150–200 customers | Support SOPs and macros; hire a part-time technical support contractor (reads JSON, reproduces payloads, knows HTTP APIs; ~$25–40/h, 5–10 h/week); runbook-based "first responder" for month-start incidents; founder keeps tier-2 and standards work. |
 | **Total** | ~12 months | **~400–530 h** | **~$1.5–4k one-off**, plus ~$60–150/mo running | |
 
@@ -118,11 +119,11 @@ This is the most automatable business in the run. The buyer is a developer who r
 - Growth and content: ~1–2 h/week.
 - Dashboard review and contractor QA: ~0.5 h/week.
 
-**Support load assumptions:** ~0.3–0.5 tickets per customer per month in the first 6 months, falling to ~0.1–0.2 once the error-explanation library exists. Onboarding tickets dominate: "BT-xx missing", "which profile?", "fonts".
+**Support load assumptions:** ~0.3–0.5 tickets per customer per month in the first 6 months, falling to ~0.1–0.2 once the error-explanation library exists. Onboarding tickets dominate: "BT-xx missing", "which profile?", "fonts", "my template looks different".
 
 **Churn handling (automated):** usage-drop email, cancellation survey (Paddle/Stripe portal), a "downgrade instead of cancel" offer, and win-back when a new mandate lands (e.g. the DE 1 Jan 2028 all-business obligation).
 
-**Weekly KPI dashboard:** docs rendered, validation pass rate (by profile), p95 latency, month-start queue peak, error rate, MRR / new / churned, trial→paid, tickets opened and resolved, % deflected by the bot, validator versions in production vs latest.
+**Weekly KPI dashboard:** docs rendered, validation pass rate (by profile), p95 latency, month-start queue peak, error rate, MRR / new / churned, sandbox→paid, tickets opened and resolved, % deflected by the bot, validator versions in production vs latest.
 
 ### A6. Top operational risks and mitigations
 
@@ -131,10 +132,11 @@ This is the most automatable business in the run. The buyer is a developer who r
 | **False "valid" report**: our validator passes a file that a customer's AP system or a stricter validator rejects | Medium / **High** (trust, churn, liability claims) | Run three independent validators (veraPDF + KoSIT + Mustang); report validator versions in every report; nightly golden suite against the latest releases; ToS limits the claim to "validated against X version Y"; E&O insurance; public changelog. |
 | **Standards drift absorbed late** (new XRechnung config, CEN schematron, ZUGFeRD 2.x) | High frequency / Medium | GitHub release-watch alerts; Renovate; "latest validator" shadow run on 1% of traffic; published support policy ("new versions within 30 days"). |
 | **Month-start capacity spike / outage** | Medium / High | Async queue + retries; scheduled burst workers on days 1–3; ask customers to use async for batches; status page; runbook a contractor can execute. |
-| **WeasyPrint dependency** (small maintainer team, PDF/UA gaps) | Medium / Medium | Pin versions; contribute or sponsor fixes (CourtBouillon offers paid support **[unverified]**); keep templates within tested CSS; Prince licence as a fallback engine once MRR supports it (~$2k/yr site licence for startups). |
+| **WeasyPrint dependency** (small maintainer team, PDF/UA gaps, no JS/CSS parity with Chromium) | Medium / Medium | Pin versions; contribute or sponsor fixes (CourtBouillon offers paid support **[unverified]**); keep templates within tested CSS; template pre-flight check; Prince licence as a fallback engine once MRR supports it (~$2k/yr site licence for startups). |
 | **Founder knowledge is a single point of failure** (the standards expertise lives in your head) | High / High | Write the mapper as data (a BT→XPath table), not code paths; decision log for each profile quirk; golden files are the executable spec; after year 1, consider a small retainer with a freelance ZUGFeRD specialist. |
+| **10-year archive obligation** (04 puts it in Growth) | Low / High | Object lock + cross-provider replica; export API; ToS clause covering service shutdown with a guaranteed export window. |
 | **Stripe / Paddle / Chargebee ship native e-invoicing** | Medium / High (demand) | Serve non-Stripe billing, home-grown stacks and app builders; the PDF/UA-for-public-sector segment (ADA Title II, Apr 2027/2028) is a second market for the same engine. |
-| **Hetzner price or availability shocks** (three price rises in 2026) | Medium / Low–Medium | Docker/Compose or Nomad deploys that are portable across providers; infra is <2% of revenue, so even a 2× increase doesn't hurt. Keep a second-provider deploy tested. |
+| **Hetzner price or availability shocks** (three price rises in 2026) | Medium / Low–Medium | Docker/Compose deploys that are portable across providers; infra is <2% of revenue, so even a 2× increase doesn't hurt. Keep a second-provider deploy tested. |
 | **Data protection** (invoice PII) | Low / High | Zero-retention default, EU-only hosting, DPA, encryption at rest for the archive, no logging of payload bodies. |
 
 ---
@@ -145,24 +147,24 @@ This is the most automatable business in the run. The buyer is a developer who r
 
 The scanning is easy to automate. The *business around it* isn't. Four things drag the score down.
 
-**(1) Change detection is harder than the pitch suggests.** Shopify's `themes/update` webhook **does not fire when theme files are edited**, and there is **no webhook when a merchant installs another app**. "Rescan on every app or theme change" therefore needs polling theme-file checksums (the GraphQL `theme.files` query exposes `checksumMd5` and `updatedAt`) plus a scheduled storefront crawl that diffs third-party scripts and app blocks. It's doable, but it's engineering you must maintain.
+**(1) Change detection is harder than the pitch suggests.** Shopify's `themes/update` webhook **does not fire when theme files are edited**, and there is **no webhook when a merchant installs another app**. "Rescan on every app or theme change" therefore needs polling theme-file checksums (the GraphQL `theme.files` query exposes `checksumMd5` and `updatedAt`) plus a scheduled storefront crawl that diffs third-party scripts and app blocks. It's doable, but it's engineering you must maintain, and "flags within hours" (04's promise) means polling every 1–6 h.
 
-**(2) The "code-level fix" is gated by Shopify.** Since API 2023-04, writing theme files needs a **write_themes protected-scope exemption**. A June 2026 developer-forum thread reports an app that *proposes targeted theme-file fixes* being **denied**, with App Embeds offered as the path. App Embeds is effectively the overlay/injection model you're positioning against. Without the exemption, the product becomes "here is the patch, send it to your developer".
+**(2) The "code-level fix" is gated by Shopify.** Since API 2023-04, writing theme files needs a **write_themes protected-scope exemption**. A June 2026 developer-forum thread reports an app that *proposes targeted theme-file fixes* being **denied**, with App Embeds offered as the path. App Embeds is effectively the overlay/injection model you're positioning against. AccessComply's auto-fix suggests some apps do get the exemption, but it isn't guaranteed. Without it, the product becomes "here is the patch, send it to your developer".
 
 **(3) The buyers aren't technical and they are scared.** Tickets will be "does this mean I'm compliant?", "I got a demand letter, what do I do?", "your fix broke my cart drawer", "is this a false positive?". Many need someone who can read Liquid, and the natural gravity is toward done-for-you remediation. That is a service business.
 
 **(4) Liability-adjacent context.** Customers who get sued while using your app will write to you, and some will leave reviews about it.
 
-The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in code, no overlay"), AccessComply, Patrol, TestParty and Consentmo's scanner are all active. With disciplined scope (report + patch + evidence ledger, no remediation services, strong self-serve help), it can reach **7–10 founder hours/week at 100 stores and 8–12 at 500 stores** with contractors. That is at or above the brief's ceiling, and the support is harder to delegate cheaply than Niche A's.
+The category is also filling up: AccessComply ($0/$49/$99/$399, code fixes), AccessifyAI, Patrol, TestParty and Consentmo's scanner are all active. With disciplined scope (report + patch + evidence ledger, no remediation services, strong self-serve help), it can reach **7–10 founder hours/week at 100 stores and 8–12 at 500 stores** with contractors. That is at or above the brief's ceiling, and the support is harder to delegate cheaply than Niche A's.
 
 ### B2. Value-chain map
 
 | Step | Tag | Tool / role | Notes |
 |---|---|---|---|
 | Acquire: App Store | Automate (once listed) | Shopify App Store listing, keyword-optimized; free plan / trial | The main channel. Reviews drive ranking, so a review-request automation is needed after the first "fixed" event. |
-| Acquire: agencies | Founder-only | Partner outreach, agency plan | Sales-like. Keep scoped. |
+| Acquire: agencies | Founder-only | Partner outreach, agency plan | Sales-like, but one technical contact per ~15 stores. Worth prioritising. |
 | Acquire: content | Automate + founder | Free "scan your store" tool, blog on demand-letter triggers | Beware: free scans with no monitoring are commodity. |
-| Sell | Automate | **Shopify Billing API** (managed pricing or app subscriptions) | 0% revenue share on the first $1M lifetime, then 15%; 2.9% processing fee. No Stripe needed except for off-platform agency plans. |
+| Sell | Automate | **Shopify Billing API** (managed pricing or app subscriptions) | 0% revenue share on the first $1M **lifetime**, then 15%; 2.9% processing fee. No Stripe needed except for off-platform agency plans. |
 | Onboard | Automate | OAuth install → baseline scan in <10 min → issue cards → onboarding email sequence | Must handle password-protected stores, locales and markets. |
 | Deliver: change detection | Automate | Webhooks `themes/publish`, `themes/update`, `app/uninstalled`; **poll** `theme.files` checksums every 1–6 h; nightly storefront crawl diffing script origins and app blocks | No webhook exists for other-app installs or file edits. Polling is required. |
 | Deliver: scanning | Automate | Playwright + **axe-core (MPL-2.0)** on self-hosted Chromium workers; ~20–50 template-representative URLs per store; keyboard/focus heuristics | Self-host. Browserless Scale ($350/mo, ~500k units) would be ~5–10× the cost at 500 stores. |
@@ -170,6 +172,7 @@ The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in
 | Deliver: fix suggestions | Automate (AI) + founder QA of the pattern library | Pattern library for the top ~30 violations (alt, labels, contrast, focus, ARIA); LLM (Claude Haiku 4.5) for Liquid diffs; re-scan the patched render in a sandbox before showing it | Cost ≈ <$0.01 per suggestion. |
 | Deliver: applying fixes | **Blocked / founder-only decision** | If the write_themes exemption is granted: apply to a duplicate theme with one-click rollback. If not: copy-paste diff, "send to developer" export, partner-dev marketplace | Get the exemption decision before building one-click fixes. |
 | Deliver: evidence ledger + statement | Automate | Append-only log (hash-chained), monthly PDF evidence pack, auto-generated accessibility statement (EN / DE / FR via LLM) | Wording must avoid any compliance claim. |
+| Deliver: "Demand Letter Pack" (04's $149 one-off) | Automate only | Full crawl + prioritized list + ledger start + partner referral links, generated PDF | No human review promised. Canned-response macros ready before launch. |
 | Retain | Automate | Monthly "what changed on your store" digest, streak metrics ("97 days, 0 unresolved criticals"), annual plan offer on first scan | The key churn lever per 03. |
 | Support: tier 1 | Delegate + automate | Help center, in-app AI assistant, Crisp; **Shopify-literate** support contractor | Needs Liquid literacy: more expensive than generic VA support. |
 | Support: tier 2 (theme code, disputes, "sued" cases) | Founder-only → partner referral | You; referral to partner auditors/lawyers | Hard rule: no remediation services, no legal advice. |
@@ -193,9 +196,9 @@ The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in
 | Email (digests, alerts) | Postmark Basic | $15 | $15–35 (~2–3k digests + alerts) | Verified |
 | Support + help center | Crisp Mini €45 → Essentials €95 | €45 | €95 | Verified |
 | Monitoring | Better Stack free → 1 responder $29–34; Sentry | $0 | ~$60 | Better Stack verified; Sentry **[unverified]** |
-| Insurance (E&O / cyber; higher for an ADA-adjacent product) | Broker | ~$100–200 | ~$150–300 | **[unverified; get quotes]** |
+| Insurance (E&O / cyber; 04 calls it mandatory here, and I agree) | Broker | ~$150–300 | ~$200–300 | **[unverified; get quotes]** |
 | Shopify fees | 0% revenue share up to $1M lifetime, then 15%; **2.9% processing** | ~3% of revenue | ~3% | Verified |
-| **Total fixed** | | **~$140–200/mo** | **~$500–700/mo** | |
+| **Total fixed** | | **~$140–200/mo** (up to ~$300 with insurance at the top of the range) | **~$500–700/mo** | |
 
 **Cost per customer:** infra + LLM ~$0.60–1.20/store/month, Shopify processing ~2.9%, and support at scale ~$5–10/store/month once contractors are counted. Support, not infra, is the cost that scales.
 
@@ -203,12 +206,12 @@ The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in
 
 | Phase | Weeks | Founder hours | Cash | Deliverables / exit criteria |
 |---|---|---|---|---|
-| **0. Spike + gate checks** | 1–4 | 40–50 | ~$50 | Scan 30 real stores (public storefronts); measure attribution accuracy (target ≥80% of violations mapped to theme file or app); **submit the write_themes exemption question/request early** (answer within ~2 weeks per Shopify docs); 8 merchant/agency interviews. **Kill or reshape if:** attribution is below 70%, *or* the exemption is denied **and** interviewees won't pay $49+ for "diff + evidence" without one-click apply. |
+| **0. Spike + gate checks** | 1–4 | 40–50 | ~$50–250 (incl. 04's ~$200 fake-door test) | Scan 30 real stores (public storefronts); measure attribution accuracy (target ≥80% of violations mapped to theme file or app); **submit the write_themes exemption question/request early** (answer within ~2 weeks per Shopify docs); run 04's attribution-vs-fix landing-page kill test (B7-1); 8 merchant/agency interviews. **Kill or reshape if:** attribution is below 70%, *or* B7-1 says fix-count messaging wins, *or* the exemption is denied **and** interviewees won't pay $39–99 for "diff + evidence" without one-click apply. |
 | **1. MVP (unlisted/custom app)** | 5–14 | 180–230 | ~$100–200 | OAuth + embedded admin UI (Polaris); GDPR webhooks; theme webhooks + checksum polling; scan pipeline; attribution; issue cards in plain English; pattern-library fixes; evidence ledger; digest email; Shopify Billing. 5–10 design-partner stores via agencies. |
-| **2. App Store launch** | 15–20 | 60–90 | ~$300–2,000 (lawyer review of ToS + marketing claims, **strongly advised** given the FTC/accessiBe precedent) | Listing, screenshots, video, review submission and fix cycles (review can take weeks **[unverified duration]**), help center (~40 articles), statement generator, onboarding emails, review-request automation. |
-| **3. Systemize** | 21–44 | 150–200 | ~$500–1,500 (insurance, infra) | LLM Liquid diffs with sandbox re-scan verification; false-positive suppression and "won't fix" states; agency multi-store dashboard; PDF evidence pack; app-change detection by script diff; support macros; in-app assistant; quarterly API-upgrade checklist; KPI dashboard. |
+| **2. App Store launch** | 15–20 | 60–90 | ~$1.5–3k (lawyer review of ToS + marketing claims, **strongly advised** given the FTC/accessiBe precedent) | Listing, screenshots, video, review submission and fix cycles (review can take weeks **[unverified duration]**), help center (~40 articles), statement generator, onboarding emails, review-request automation. |
+| **3. Systemize** | 21–44 | 150–200 | ~$500–1,500 (insurance, infra) | LLM Liquid diffs with sandbox re-scan verification; false-positive suppression and "won't fix" states; agency multi-store dashboard; PDF evidence pack + automated Demand Letter Pack; app-change detection by script diff; support macros; in-app assistant; quarterly API-upgrade checklist; KPI dashboard. |
 | **4. Delegate** | 44–56 | 40–50 | ~$1.5–3k/mo from ~150 stores | Hire a **Shopify-literate** support contractor (reads Liquid/HTML; $25–50/h, 10–20 h/week); SOPs for top-20 ticket types; escalation matrix (legal → refer, theme breakage → founder); partner-agency referral program for "do it for me" requests. |
-| **Total** | ~13–14 months | **~470–620 h** | **~$1.5–5k one-off**, plus ~$100–200/mo running | |
+| **Total** | ~13–14 months | **~470–620 h** | **~$2.5–5k one-off**, plus ~$140–300/mo running | |
 
 **Non-coder founder:** a senior Shopify app developer costs **$60–150/h** (Upwork 2026 ranges). ~450–550 h comes to **$35–65k**, plus an ongoing **$1.5–3k/month** retainer for API upgrades, scanner fixes and attribution tuning. That uses the whole budget, and a Shopify app with no in-house dev decays within a year of API versions. **Not recommended for a non-coder.**
 
@@ -223,7 +226,7 @@ The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in
 
 **Support load assumptions (my estimate):** ~0.6–1.0 tickets per store per month in year 1 (non-technical, anxious users; every new violation triggers a question), falling to ~0.3–0.5 with a good help center and in-app assistant. At 500 stores that is ~150–250 tickets/month at ~15–20 min each, or **~40–80 h/month**. Roughly 20–30% need Liquid-level help. Add review management and uninstall-feedback handling (~1 h/week).
 
-**Churn handling:** at an expected ~3–5% monthly churn (03), 500 stores means ~15–25 cancellations a month. The exit survey and win-back emails are automated. The "invisible value" digest is the main preventive lever. Annual plans pushed at the moment of highest fear.
+**Churn handling:** at an expected ~3–5% monthly churn (03; 04 models 4%), 500 stores means ~15–25 cancellations a month. The exit survey and win-back emails are automated. The "invisible value" digest is the main preventive lever. Annual plans pushed at the moment of highest fear.
 
 **Weekly KPI dashboard:** installs, trial→paid, MRR / churn, scans run and failed, change events detected (webhook vs polling vs script diff), attribution rate, fix-suggestion acceptance, false-positive flags, tickets per 100 stores, time-to-first-response, App Store rating, Shopify API deprecation warnings.
 
@@ -236,18 +239,40 @@ The category is also filling up: AccessifyAI ("find and fix WCAG theme issues in
 | **Change detection misses events** (no webhook for app installs or file edits) | High / Medium | Three layers: webhooks + checksum polling + a daily storefront script diff. Display "last checked" honestly. Never promise "instant". |
 | **Scanning blocked or throttled** (bot protection, password pages, geo/markets variants) | Medium / Medium | Scan via the merchant-authorized context (storefront password where provided), polite rate limits, a stable user-agent, retries; flag unscannable pages in the report. |
 | **Liability and reputational events** (merchant sued while subscribed; FTC-style claim scrutiny) | Medium / High | No "compliant" or "lawsuit-proof" language anywhere (the FTC fined accessiBe $1M); lawyer-reviewed claims; E&O insurance; evidence ledger framed as "record of effort". |
-| **Shopify platform dependency** (API versions quarterly, app review, policy changes, 15% share after $1M) | Certain / Medium | Quarterly upgrade checklist; stay current with Built for Shopify requirements; later, extract the scanner/ledger core so it can serve WordPress/Woo (a second platform reduces single-platform risk). |
-| **Crowded category** (AccessifyAI, AccessComply, Patrol, TestParty, Consentmo) | High / Medium (CAC up, price pressure) | Compete on attribution + evidence ledger + agency multi-store, not on "scan + fix". This is a positioning question for 04. |
+| **Shopify platform dependency** (API versions quarterly, app review, policy changes, 15% share after $1M lifetime) | Certain / Medium | Quarterly upgrade checklist; stay current with Built for Shopify requirements; later, extract the scanner/ledger core so it can serve WordPress/Woo (a second platform reduces single-platform risk). |
+| **Crowded category** (AccessComply, AccessifyAI, Patrol, TestParty, Consentmo) | High / Medium (CAC up, price pressure) | Compete on attribution + evidence ledger + agency multi-store, not on "scan + fix" (matches 04's wedge). |
 | **Founder as the only Liquid/attribution expert** | High / Medium | Pattern library as data; golden-store regression suite (10 popular themes × 20 popular apps); SOPs; a contractor able to add patterns by year 2. |
 
 ---
 
+## Alignment with 04-offer-architect
+
+04 landed while this file was being finished. Its pricing sits at or slightly above the 03 ranges used above, so the cost-per-customer and margin conclusions hold or improve. The points where ops disagrees with 04, or adds constraints:
+
+**Niche A**
+1. **Rendering engine.** 04 assumes "Chromium render + post-processing" for PDF/A-3b and PDF/UA-1. **Ops recommends against it.** Chromium's output isn't PDF/A-conformant and its tagging isn't PDF/UA-grade, so "post-processing" amounts to rewriting the PDF. Use **WeasyPrint** (native `pdf/a-3b` + `pdf/ua-1` + Factur-X attachment API), with a Prince licence as the fidelity fallback. 04's €400/mo "commercial library reserve" roughly covers Prince's ~$2k/yr startup site licence **[OEM/resale terms unverified]**.
+2. **"Keep the template you already have" is a fidelity promise that WeasyPrint can't fully keep** (no JavaScript, some CSS gaps, slow multi-page tables). Operationally, every "my template looks different" ticket is founder time. Mitigations: a pre-flight "template compatibility check" endpoint, a documented supported-CSS list, and 5–10 gallery templates. Treat custom-template fidelity as best-effort in the ToS.
+3. **10-year archive in the €99 Growth tier** creates a retention obligation that outlives any single server or vendor, and possibly the business itself. It needs immutable storage (object lock), cross-provider replication, a documented export API and a shutdown/export clause. Storage cost is trivial (~€6.49/TB/mo). The *obligation* is the risk.
+4. **"Failed documents are not billed"** is good for trust and is automatable (billing reads the report status). Rate-limit identical failing payloads to prevent free-rendering abuse.
+5. **Self-host Docker licence** (Scale add-on) adds support for customer environments. Ship it as-is, with no install support below an explicit paid SLA, or it breaks passivity.
+6. **Stripe/Chargebee connectors** are small builds (webhook → render → attach) but each one is a maintained integration. Ship Stripe first. Add Chargebee only when ≥10 customers ask.
+7. 04's fixed-cost estimate of ~€750/mo (two regions + licence reserve) is conservative next to my ~$90–150 at 100 customers. Both work. Start single-region with tested backups, and add a second region at ~€5k MRR.
+
+**Niche B**
+1. **04's hero tier ($99 Guard) promises one-click diff patches applied to a duplicate theme, with rollback.** That needs Shopify's **write_themes exemption**, and forum reports say `themeCreate`/duplication is also exemption-gated. AccessComply's "auto-writes fixes with backup" suggests exemptions *are* obtainable, but a June 2026 denial for a similar fix-proposing app shows it isn't automatic. **Make the exemption request the first action in Phase 0.** If it's denied, Guard's differentiator reduces to attribution + ledger + copy-paste diffs, and 04's kill test (B7-1) becomes even more decisive.
+2. **Revenue-share line:** 04 says "0% up to $1M/yr". The current terms are **0% on the first $1M *lifetime*** (revenue since 1 Jan 2025, aggregated across a partner's apps), then 15%. This doesn't matter before ~$83k MRR, but correct the model.
+3. **Support cost:** 04 assumes ~10 min per customer per month at $25/h (~$4.50). My estimate is 0.6–1.0 tickets per store per month in year 1 at 15–20 min each, with 20–30% needing Liquid skills (≥$35–50/h). That is **~$6–12 per customer per month in year 1**, falling toward 04's number only after the help center matures. COGS per customer is then ~$14–20 instead of ~$12, so gross margin is ~80% instead of 87%. The niche is still viable, but less passive.
+4. **"Demand Letter Response Pack" ($149 one-off)** attracts the most anxious, highest-touch buyers ("what do I tell my lawyer?"). Keep it 100% automated, with no human review promised, and have canned-response macros ready before launch.
+5. **Agency tier ($349 / 15 stores)** is good for passivity: one technical contact per 15 stores. Agencies file fewer but harder tickets. It is net positive, so prioritise it.
+
+These points don't change the scores. They are the conditions under which A stays at 7 and B at 4–5.
+
 ## Cross-niche recommendation (ops lens)
 
-1. **A is operationally superior.** It has developer buyers, deterministic outputs, three free and permissive validators, cheap infra (~1% of revenue) and ~4–8 founder h/week at 500 customers. Its irreducible founder work (standards drift) is *predictable and schedulable*: a few spikes a year when KoSIT, FeRD or veraPDF release. That suits a passive-income goal.
-2. **B's ceiling on passivity is set by its users and by Shopify**, not by the code. The scanning is cheap. The support is expensive and needs Liquid skills. The flagship feature ("code-level fixes") depends on a Shopify exemption that is being denied for similar apps in 2026. Only pursue B as a second product, *after* A is systemized, and only if the Phase-0 gate checks pass.
+1. **A is operationally superior.** It has developer buyers, deterministic outputs, three free and permissive validators, cheap infra (~1% of revenue) and ~5–8 founder h/week at 500 customers. Its irreducible founder work (standards drift) is *predictable and schedulable*: a few spikes a year when KoSIT, FeRD or veraPDF release. That suits a passive-income goal. This agrees with 04's recommendation to build A first.
+2. **B's ceiling on passivity is set by its users and by Shopify**, not by the code. The scanning is cheap. The support is expensive and needs Liquid skills. The flagship feature ("code-level fixes") depends on a Shopify exemption that has been denied for at least one similar app in 2026. Only pursue B as a second product, *after* A is systemized, and only if the Phase-0 gate checks (including 04's B7-1 kill test and the exemption answer) pass. Both of those can run for ~$200 and ~10 h in parallel with A's build.
 3. **Shared asset:** both products are "verifiable output + evidence artefact". The report/ledger component (hash-chained, versioned validator metadata, PDF report) can be built once and reused.
-4. **Before writing code for A:** confirm that WeasyPrint's PDF/UA output passes veraPDF on your *actual* invoice templates (tables!). If it doesn't within ~40 h of work, the PDF/UA claim moves to a later tier (Prince licence), and launch is ZUGFeRD/XRechnung + PDF/A-3b only.
+4. **Before writing code for A:** confirm that WeasyPrint's PDF/UA output passes veraPDF on *actual* invoice templates (tables!). If it doesn't within ~40 h of work, the PDF/UA claim moves to a Prince-backed tier later, and launch is ZUGFeRD/XRechnung + PDF/A-3b only. That would weaken 04's Growth-tier bundle.
 
 ## Sources
 
